@@ -289,11 +289,11 @@ async def subscription_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
         subscriptions = get_user_subscriptions(user_id)
         
         if subscriptions is None:
-            await update.message.reply_text("خطا در دریافت اطلاعات اشتراک‌ها.")
+            await update.callback_query.message.reply_text("خطا در دریافت اطلاعات اشتراک‌ها.")
             return
             
         if not subscriptions:
-            await update.message.reply_text("شما هیچ اشتراک فعالی ندارید.")
+            await update.callback_query.message.reply_text("شما هیچ اشتراک فعالی ندارید.")
             return
         
         # ایجاد متن پیام ساده‌تر
@@ -320,11 +320,11 @@ async def subscription_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 ])
         
         # ارسال پیام به کاربر
-        await update.message.reply_text(
+        await update.callback_query.message.reply_text(
             message_text,
             reply_markup=InlineKeyboardMarkup(keyboard) if keyboard else None
         )
         
     except Exception as e:
-        await update.message.reply_text("خطایی رخ داد، لطفاً دوباره تلاش کنید.")
+        await update.callback_query.message.reply_text("خطایی رخ داد، لطفاً دوباره تلاش کنید.")
         print(f"خطا در نمایش لیست اشتراک‌ها: {e}")
