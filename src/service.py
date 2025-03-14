@@ -282,65 +282,49 @@ async def config_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def subscription_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """نمایش لیست اشتراک‌های کاربر و دکمه برای دریافت فایل پیکربندی"""
+    """نمایش لیست اشتراک‌های کاربر"""
     try:
-        # دریافت اطلاعات کاربر
+        # دریافت اطلاعات کاربر و اشتراک‌ها
         user_id = str(update.effective_user.id)
-        
-        # دریافت لیست اشتراک‌ها از دیتابیس
         subscriptions = get_user_subscriptions(user_id)
         
         if subscriptions is None:
-            # خطا در دریافت اطلاعات
-            await update.callback_query.message.reply_text("خطا در دریافت اطلاعات اشتراک‌ها. لطفاً بعداً تلاش کنید.")
+            await update.message.reply_text("خطا در دریافت اطلاعات اشتراک‌ها.")
             return
             
         if not subscriptions:
-            # کاربر اشتراکی ندارد
-            await update.callback_query.message.reply_text("شما هیچ اشتراک فعالی ندارید. برای خرید اشتراک از منوی اصلی اقدام کنید.")
+            await update.message.reply_text("شما هیچ اشتراک فعالی ندارید.")
             return
         
-        # ایجاد متن پیام
-        message_text = "📋 لیست اشتراک‌های شما:\n\n"
+        # ایجاد متن پیام ساده‌تر
+        message_text = "📋 اشتراک‌های شما:"
         
         # ایجاد کیبورد اینلاین
         keyboard = []
         
-        # افزودن اطلاعات هر اشتراک
+        # افزودن دکمه برای هر اشتراک فعال
         for sub in subscriptions:
-            # بررسی وضعیت اشتراک
+            # نمایش وضعیت با ایموجی مناسب
             status_emoji = "✅" if sub['status'] == 'active' else "⏳" if sub['status'] == 'pending' else "❌"
             
-            # افزودن اطلاعات اشتراک به متن پیام
-            message_text += f"{status_emoji} {sub['plan_name']}\n"
-            message_text += f"    💰 قیمت: {sub['price']:,} تومان\n"
-            message_text += f"    📅 تاریخ خرید: {sub['purchase_date']}\n"
-            message_text += f"    🔄 تاریخ انقضا: {sub['expire_date']}\n\n"
+            # متن کوتاه برای هر اشتراک
+            plan_text = f"{status_emoji} {sub['plan_name']} - انقضا: {sub['expire_date'].split()[0]}"
+            message_text += f"\n{plan_text}"
             
             # اگر اشتراک فعال است، دکمه دریافت فایل پیکربندی را اضافه کن
             if sub['status'] == 'active':
-                # تولید نام منحصر به فرد برای فایل پیکربندی
-                from datetime import datetime
-                name = sub['plan_name']
-                
-                # افزودن دکمه به کیبورد
+                name = f"ping-killer-{user_id}-{sub['id']}"
                 keyboard.append([
-                    InlineKeyboardButton(f"دریافت فایل پیکربندی {sub['plan_name']}", 
-                                         callback_data=f"ConfigFile@{name}")
+                    InlineKeyboardButton(f"دریافت کانفیگ {sub['plan_name']}", 
+                                        callback_data=f"configinfo@{name}")
                 ])
         
-        # افزودن پیام راهنما
-        if keyboard:
-            message_text += "برای دریافت فایل پیکربندی، روی دکمه‌های زیر کلیک کنید:"
-        
         # ارسال پیام به کاربر
-        await update.callback_query.message.reply_text(
+        await update.message.reply_text(
             message_text,
             reply_markup=InlineKeyboardMarkup(keyboard) if keyboard else None
         )
         
     except Exception as e:
-        # مدیریت خطاهای احتمالی
-        await update.callback_query.message.reply_text(f"خطایی رخ داد: {str(e)}")
-        # ثبت خطا در لاگ
+        await update.message.reply_text("خطایی رخ داد، لطفاً دوباره تلاش کنید.")
         print(f"خطا در نمایش لیست اشتراک‌ها: {e}")
