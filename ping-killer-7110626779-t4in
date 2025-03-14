@@ -1,0 +1,11 @@
+[Interface]
+PrivateKey = Ma6km6H4vunCRCO7Sj7U68uMp6/L+tOjw+LiDHqJI0k=
+Address = 166.66.66.8/32
+DNS = 1.1.1.1, 1.0.0.1
+MTU = 1280
+
+[Peer]
+PublicKey = PCvIauQrYq7+9BC1a+NZqXqf+iZtZNmFmF2FmB/7CyA=
+Endpoint = 91.107.130.13:20821
+AllowedIPs = 0.0.0.0/0, ::/0
+PersistentKeepalive = 25
