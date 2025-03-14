@@ -333,4 +333,4 @@ async def subscription_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def config_info(update : Update , context : ContextTypes.DEFAULT_TYPE):
     name = update.callback_query.data.split('@')[1]
     data = get_peers_info(name , 'http://91.107.130.13:8443')
-    
+    await update.callback_query.edit_message_text(data)
