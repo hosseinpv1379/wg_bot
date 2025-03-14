@@ -3,7 +3,7 @@ from telegram import Update , InlineKeyboardButton , InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder , CommandHandler , ContextTypes , CallbackQueryHandler , MessageHandler , filters
 from db.db_model import add_user , get_user_by_id
 from src.admin import admin_page , bot_statement , add_plan_admin , add_plan_admin_approve
-from src.service import service_buy  , service_buy_1 , service_buy_2 , pay_factor , config_file , subscription_list
+from src.service import service_buy  , service_buy_1 , service_buy_2 , pay_factor , config_file , subscription_list , config_info
 from src.balance import send_receipt , receipt_photo_handler , admin_approve_payment , admin_reverse_amount
 import config
 import os
@@ -385,6 +385,7 @@ def register_handlers(app ):
     app.add_handler(CallbackQueryHandler(service_buy, pattern=r'^buy_service$'))
     app.add_handler(CallbackQueryHandler(bot_statement, pattern=r'^bot_statement$'))
     app.add_handler(CallbackQueryHandler(subscription_list, pattern=r'^user_subscription$'))
+    app.add_handler(CallbackQueryHandler(config_info, pattern=r'^configinfo@.+$'))
 
     # گروه ۳: هندلرهای مربوط به خرید سرویس
     app.add_handler(CallbackQueryHandler(service_buy_1, pattern=r'^buyservice@.+$'))
