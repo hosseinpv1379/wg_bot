@@ -173,12 +173,69 @@ def save_peer_config(base_url: str, peer_name: str, output_path: str, api_key: s
     
     return False
 
-# نمونه استفاده
-url = "http://91.107.130.13:8443"
-peer_name = "hossein"
-save_peer_config(url, peer_name, f"{peer_name}.conf")
 
 
-
-peer_name = "hossein"
-save_peer_config(url, peer_name, f"{peer_name}.conf")
+def get_peers_info(peer_name, url):
+    """
+    دریافت اطلاعات peer از سرور
+    
+    پارامترها:
+        peer_name (str): نام peer مورد نظر
+        url (str): آدرس پایه API سرور
+    
+    بازگشت:
+        dict: اطلاعات peer در صورت موفقیت
+        None: در صورت بروز خطا
+    """
+    import requests
+    
+    try:
+        # ساخت آدرس کامل API
+        endpoint = f"{url}/api/get-peers"
+        
+        # تنظیم پارامترهای درخواست
+        params = {"peer_name": peer_name}
+        
+        # ارسال درخواست GET به سرور
+        response = requests.get(endpoint, params=params,headers=headers, timeout=10)
+        
+        # بررسی کد وضعیت پاسخ
+        if response.status_code == 200:
+            # درخواست موفق
+            data = response.json()
+            
+            # بررسی وجود دیتا
+            if "peers" in data and len(data["peers"]) > 0:
+                print(f"✅ اطلاعات peer '{peer_name}' با موفقیت دریافت شد.")
+                return data
+            else:
+                print(f"⚠️ هیچ peer با نام '{peer_name}' یافت نشد.")
+                return None
+                
+        elif response.status_code == 400:
+            # درخواست نامعتبر
+            print(f"❌ خطای درخواست: {response.json().get('error', 'نام peer نامعتبر است.')}")
+            return None
+            
+        elif response.status_code == 404:
+            # peer یا فایل کانفیگ یافت نشد
+            print(f"❌ خطا: {response.json().get('error', 'peer مورد نظر یا فایل کانفیگ یافت نشد.')}")
+            return None
+            
+        else:
+            # سایر خطاها
+            error_msg = response.json().get('error', f'خطای سرور با کد {response.status_code}')
+            print(f"❌ خطا در دریافت اطلاعات peer: {error_msg}")
+            return None
+            
+    except requests.exceptions.Timeout:
+        print("❌ خطا: زمان انتظار برای پاسخ سرور به پایان رسید.")
+        return None
+        
+    except requests.exceptions.ConnectionError:
+        print("❌ خطا: عدم امکان برقراری ارتباط با سرور.")
+        return None
+        
+    except Exception as e:
+        print(f"❌ خطای غیرمنتظره: {str(e)}")
+        return None    

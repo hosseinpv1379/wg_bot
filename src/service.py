@@ -1,12 +1,12 @@
 import re
 from telegram import Update , InlineKeyboardButton , InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder , CommandHandler , ContextTypes , CallbackQueryHandler , MessageHandler , filters
-from db.db_model import get_user_subscriptions, get_service_locations_sorted , add_factor , get_service_location_by_id , get_balance , update_balance , insert_usersubscription
+from db.db_model import get_user_subscriptions, get_service_locations_sorted , add_factor , get_service_location_by_id , get_balance , update_balance , insert_usersubscription 
 import time 
 import random
 from src.utils import escape_markdown_v2
 import string
-from src.wireguard.addpeer import save_peer_config , create_peer
+from src.wireguard.addpeer import save_peer_config , create_peer , get_peers_info
 def generate_username(user_id, team_name="PingKiller"):
     """
     تولید نام کاربری منحصر به فرد و زیبا براساس شناسه کاربر
@@ -289,11 +289,11 @@ async def subscription_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
         subscriptions = get_user_subscriptions(user_id)
         
         if subscriptions is None:
-            await update.callback_query.message.reply_text("خطا در دریافت اطلاعات اشتراک‌ها.")
+            await update.callback_query.edit_message_text("خطا در دریافت اطلاعات اشتراک‌ها.")
             return
             
         if not subscriptions:
-            await update.callback_query.message.reply_text("شما هیچ اشتراک فعالی ندارید.")
+            await update.callback_query.edit_message_text("شما هیچ اشتراک فعالی ندارید.")
             return
         
         # ایجاد متن پیام ساده‌تر
@@ -318,7 +318,7 @@ async def subscription_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     InlineKeyboardButton(f"دریافت کانفیگ {sub['plan_name']}", 
                                         callback_data=f"configinfo@{name}")
                 ])
-        
+        keyboard.append([InlineKeyboardButton('🔙 بازگشت' , callback_data='user_subscription')])
         # ارسال پیام به کاربر
         await update.callback_query.message.reply_text(
             message_text,
@@ -328,3 +328,9 @@ async def subscription_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except Exception as e:
         await update.callback_query.message.reply_text("خطایی رخ داد، لطفاً دوباره تلاش کنید.")
         print(f"خطا در نمایش لیست اشتراک‌ها: {e}")
+
+
+async def config_info(update : Update , context : ContextTypes.DEFAULT_TYPE):
+    name = update.callback_query.data.split('@')[1]
+    data = get_peers_info(name , 'http://91.107.130.13:8443')
+    
