@@ -128,6 +128,7 @@ async def list_plans(update: Update, context: ContextTypes.DEFAULT_TYPE):
         for plan_dict in plans_list:
             for plan_id, plan_info in plan_dict.items():
                 # استخراج اطلاعات پلن
+                plan_id = plan_info['id']  # استفاده مستقیم از شناسه پلن از فیلد id
                 location_code = plan_info['loc']
                 location_name = plan_info['name']
                 price = plan_info['price']
