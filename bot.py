@@ -162,7 +162,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if update.message:
         if not await check_membership(update , context):
-            return await send_join_channel_button(update.message)
+            return
         await update.message.reply_text(
             msg, 
             reply_markup=InlineKeyboardMarkup(kb),
@@ -170,7 +170,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
     else:
         if not await check_membership(update , context):
-             return await send_join_channel_button(update.callback_query.message)
+             return
         await update.callback_query.edit_message_text(
             msg,
             reply_markup=InlineKeyboardMarkup(kb)
