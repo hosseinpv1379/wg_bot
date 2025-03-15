@@ -107,9 +107,9 @@ async def list_plans(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """نمایش لیست پلن‌ها با دکمه‌های اینلاین"""
     try:
         # دریافت لیست پلن‌ها از دیتابیس
-        plans = get_service_locations_sorted()
-        print(plans)
-        if not plans:
+        plans_list = get_service_locations_sorted()
+        
+        if not plans_list:
             await update.callback_query.edit_message_text(
                 "📭 هیچ پلنی یافت نشد!",
                 reply_markup=InlineKeyboardMarkup([
@@ -125,23 +125,26 @@ async def list_plans(update: Update, context: ContextTypes.DEFAULT_TYPE):
         keyboard = []
         
         # افزودن دکمه برای هر پلن
-        for plan in plans:
-            plan_id = plan['id']
-            location_code = plan['location_code']
-            location_name = plan['location_name']
-            price = plan['price']
-            
-            # نمایش اطلاعات مختصر در متن پیام
-            message_text += f"📌 *{location_name}* (کد: `{location_code}`)\n"
-            message_text += f"   💰 قیمت: {price:,} تومان\n\n"
-            
-            # ایجاد دکمه برای هر پلن
-            keyboard.append([
-                InlineKeyboardButton(
-                    f"{location_name} - {price:,} تومان", 
-                    callback_data=f"plan_info_{plan_id}"
-                )
-            ])
+        for plan_dict in plans_list:
+            for plan_id, plan_info in plan_dict.items():
+                # استخراج اطلاعات پلن
+                location_code = plan_info['loc']
+                location_name = plan_info['name']
+                price = plan_info['price']
+                volume = plan_info['volume']
+                flag = plan_info['flag']
+                
+                # نمایش اطلاعات مختصر در متن پیام
+                message_text += f"{flag} *{location_name}* (کد: `{location_code}`)\n"
+                message_text += f"   💰 قیمت: {price:,} تومان | 📊 حجم: {volume} گیگابایت\n\n"
+                
+                # ایجاد دکمه برای هر پلن
+                keyboard.append([
+                    InlineKeyboardButton(
+                        f"{location_name} - {price} تومان", 
+                        callback_data=f"plan_info_{plan_id}"
+                    )
+                ])
         
         # افزودن دکمه بازگشت در آخر
         keyboard.append([
