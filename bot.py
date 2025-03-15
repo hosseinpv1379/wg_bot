@@ -6,6 +6,8 @@ from src.admin import admin_page , bot_statement , add_plan_admin , add_plan_adm
 from src.service import service_buy  , service_buy_1 , service_buy_2 , pay_factor , config_file , subscription_list , config_info
 from src.balance import send_receipt , receipt_photo_handler , admin_approve_payment , admin_reverse_amount
 import config
+from telegram.constants import ChatMemberStatus
+
 import os
 import shutil
 import datetime
@@ -44,9 +46,11 @@ async def check_membership(update: Update, context: ContextTypes.DEFAULT_TYPE) -
         chat_member = await context.bot.get_chat_member(chat_id=CHANNEL_ID, user_id=user_id)
         
         # چک کردن وضعیت عضویت
-        if chat_member.status in [ChatMember.MEMBER, ChatMember.ADMINISTRATOR, ChatMember.CREATOR]:
+        if chat_member.status in [ChatMemberStatus.MEMBER, ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER]:
             return True
         else:
+            # استفاده از تابع کمکی برای نمایش دکمه عضویت
+            await send_join_channel_button(update.message)
             return False
             
     except Exception as e:
