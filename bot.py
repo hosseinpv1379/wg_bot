@@ -2,7 +2,7 @@ import re
 from telegram import Update , InlineKeyboardButton , InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder , CommandHandler , ContextTypes , CallbackQueryHandler , MessageHandler , filters
 from db.db_model import add_user , get_user_by_id
-from src.admin import admin_page , bot_statement , add_plan_admin , add_plan_admin_approve
+from src.admin import admin_page , bot_statement , add_plan_admin , add_plan_admin_approve , list_plans
 from src.service import service_buy  , service_buy_1 , service_buy_2 , pay_factor , config_file , subscription_list , config_info
 from src.balance import send_receipt , receipt_photo_handler , admin_approve_payment , admin_reverse_amount
 import config
@@ -418,6 +418,8 @@ def register_handlers(app ):
     
     # گروه ۶: هندلرهای پنل ادمین
     app.add_handler(CallbackQueryHandler(admin_page, pattern=r'^admin_panel$'))
+    app.add_handler(CallbackQueryHandler(list_plans, pattern=r'^admin_list-plan$'))
+
     app.add_handler(CallbackQueryHandler(add_plan_admin, pattern=r'^admin_add-plan$'))
     app.add_handler(CallbackQueryHandler(add_plan_admin_approve, pattern=r'^approve_addplan$'))
     app.add_handler(CallbackQueryHandler(backup_database, pattern=r'^backup_database$'))

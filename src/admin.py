@@ -1,13 +1,13 @@
 import re
 from telegram import Update , InlineKeyboardButton , InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder , CommandHandler , ContextTypes , CallbackQueryHandler , MessageHandler , filters
-from db.db_model import get_botdata , add_plan
+from db.db_model import get_botdata , add_plan , get_service_locations_sorted
 from datetime import datetime
 async def admin_page(update: Update, context: ContextTypes.DEFAULT_TYPE):
     kb = [
     [
         InlineKeyboardButton('➕ اضافه کردن پلن', callback_data='admin_add-plan'),
-        InlineKeyboardButton('❌ حذف پلن', callback_data='admin_delete-plan')
+        InlineKeyboardButton('📋 لیست پلن', callback_data='admin_list-plan')
     ],
     [
         InlineKeyboardButton('📊 آمار ربات', callback_data='bot_statement'),
@@ -101,3 +101,65 @@ async def add_plan_admin_approve(update: Update, context: ContextTypes.DEFAULT_T
         await update.callback_query.edit_message_text("✅ پلن با موفقیت اضافه شد")
     else:
         await update.callback_query.edit_message_text("❌ خطا در اضافه کردن پلن")
+
+
+async def list_plans(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """نمایش لیست پلن‌ها با دکمه‌های اینلاین"""
+    try:
+        # دریافت لیست پلن‌ها از دیتابیس
+        plans = get_service_locations_sorted()
+        
+        if not plans:
+            await update.callback_query.edit_message_text(
+                "📭 هیچ پلنی یافت نشد!",
+                reply_markup=InlineKeyboardMarkup([
+                    [InlineKeyboardButton("🔙 بازگشت به پنل ادمین", callback_data="admin_panel")]
+                ])
+            )
+            return
+        
+        # ساخت پیام نمایش لیست
+        message_text = "📋 لیست پلن‌های موجود:\n\n"
+        
+        # ساخت دکمه‌ها برای هر پلن
+        keyboard = []
+        
+        # افزودن دکمه برای هر پلن
+        for plan in plans:
+            plan_id = plan['id']
+            location_code = plan['location_code']
+            location_name = plan['location_name']
+            price = plan['price']
+            
+            # نمایش اطلاعات مختصر در متن پیام
+            message_text += f"📌 *{location_name}* (کد: `{location_code}`)\n"
+            message_text += f"   💰 قیمت: {price:,} تومان\n\n"
+            
+            # ایجاد دکمه برای هر پلن
+            keyboard.append([
+                InlineKeyboardButton(
+                    f"{location_name} - {price:,} تومان", 
+                    callback_data=f"plan_info_{plan_id}"
+                )
+            ])
+        
+        # افزودن دکمه بازگشت در آخر
+        keyboard.append([
+            InlineKeyboardButton("🔙 بازگشت به پنل ادمین", callback_data="admin_panel")
+        ])
+        
+        # ارسال پیام با دکمه‌ها
+        await update.callback_query.edit_message_text(
+            message_text,
+            reply_markup=InlineKeyboardMarkup(keyboard),
+            parse_mode="Markdown"
+        )
+        
+    except Exception as e:
+        print(f"خطا در نمایش لیست پلن‌ها: {e}")
+        await update.callback_query.edit_message_text(
+            "❌ خطایی در دریافت لیست پلن‌ها رخ داد.",
+            reply_markup=InlineKeyboardMarkup([
+                [InlineKeyboardButton("🔙 بازگشت به پنل ادمین", callback_data="admin_panel")]
+            ])
+        )
