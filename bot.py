@@ -155,7 +155,7 @@ async def charge_balance(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # دکمه‌های مربوط به کیف پول
         kb = InlineKeyboardMarkup([
             [InlineKeyboardButton('💰 شارژ کیف پول', callback_data='charge_balance@2')],
-            [InlineKeyboardButton('🔙 بازگشت به منو', callback_data='main_menu')]
+            [InlineKeyboardButton('🔙 بازگشت به منو', callback_data='back_to_main')]
         ])
         
         # ویرایش پیام با اطلاعات جدید
