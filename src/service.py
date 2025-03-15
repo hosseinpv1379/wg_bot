@@ -198,7 +198,8 @@ async def pay_factor(update : Update , context : ContextTypes.DEFAULT_TYPE):
     plan_info = get_service_location_by_id(plan_id)
     # مرحله دو : مقدر کیف پول کاربر را از دیتا بیس میخوانیم
     balance = get_balance(user_id=update.callback_query.from_user.id)
-
+    print(plan_info)
+    return 
     if int(balance) <= plan_info['price']:
         await update.callback_query.delete_message()
         msg = '''🔴 کاربر گرامی، موجودی حساب شما برای خرید اشتراک کافی نمی‌باشد.
