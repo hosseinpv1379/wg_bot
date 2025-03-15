@@ -293,7 +293,7 @@ async def msg_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         try:
             # جداسازی اطلاعات ورودی
             lines = update.message.text.strip().split("\n")
-            if len(lines) < 7:
+            if len(lines) < 7:  # حداقل تعداد خطوط مورد نیاز
                 raise ValueError("تعداد خطوط کافی نیست")
                 
             location_code = lines[0].strip()
@@ -304,6 +304,10 @@ async def msg_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             ping = lines[5].strip()
             price = lines[6].strip()
             
+            # دریافت فیلدهای اختیاری جدید
+            api_url = lines[7].strip() if len(lines) > 7 else ""
+            api_key = lines[8].strip() if len(lines) > 8 else ""
+            
             # ذخیره اطلاعات در دیکشنری
             context.user_data['data'] = {
                 "location_code": location_code,
@@ -312,7 +316,9 @@ async def msg_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 "volume": volume,
                 "validity": validity,
                 "ping": ping,
-                "price": price
+                "price": price,
+                "api_url": api_url,
+                "api_key": api_key
             }
             
             # نمایش اطلاعات به شکل زیبا
@@ -324,9 +330,16 @@ async def msg_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 f"📊 *حجم:* {volume} گیگابایت\n"
                 f"⏱ *مدت اعتبار:* {validity}\n"
                 f"📡 *پینگ:* {ping} میلی‌ثانیه\n"
-                f"💰 *قیمت:* {price:,} تومان\n\n"
-                "لطفاً اطلاعات را بررسی و تأیید کنید"
+                f"💰 *قیمت:* {price:,} تومان\n"
             )
+            
+            # اضافه کردن اطلاعات API اگر وارد شده باشند
+            if api_url:
+                confirmation_message += f"🔗 *آدرس API:* `{api_url}`\n"
+            if api_key:
+                confirmation_message += f"🔑 *کلید API:* `{api_key}`\n"
+                
+            confirmation_message += "\nلطفاً اطلاعات را بررسی و تأیید کنید"
             
             # دکمه‌های تأیید یا لغو
             kb = InlineKeyboardMarkup([
@@ -353,6 +366,8 @@ async def msg_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 "مدت اعتبار\n"
                 "پینگ (به میلی‌ثانیه)\n"
                 "قیمت (به تومان)\n"
+                "آدرس API (اختیاری)\n"
+                "کلید API (اختیاری)\n"
                 "```"
             )
             

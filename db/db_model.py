@@ -192,6 +192,8 @@ def create_tables():
     validity TEXT NOT NULL,
     ping INTEGER NOT NULL,
     price INTEGER NOT NULL,
+    api_url TEXT,
+    api_key TEXT,
     is_active INTEGER DEFAULT 1,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -359,7 +361,7 @@ def update_balance(user_id, amount):
     except Error as e:
         print(f"خطا در بروزرسانی موجودی: {e}")
         return False
-def add_plan(loc_code, loc_name, flag_emoji, volume, validity, ping, price):
+def add_plan(loc_code, loc_name, flag_emoji, volume, validity, ping, price, api_url=None, api_key=None):
     connection = None
     for attempt in range(5):  # Try 5 times
         try:
@@ -367,9 +369,9 @@ def add_plan(loc_code, loc_name, flag_emoji, volume, validity, ping, price):
             connection.execute("PRAGMA busy_timeout = 5000")  # Wait up to 5 seconds
             cursor = connection.cursor()
             query = """INSERT INTO service_locations 
-                      (location_code, location_name, flag_emoji, volume, validity, ping, price) 
-                      VALUES (?, ?, ?, ?, ?, ?, ?)"""
-            cursor.execute(query, (loc_code, loc_name, flag_emoji, volume, validity, ping, price))
+                      (location_code, location_name, flag_emoji, volume, validity, ping, price, api_url, api_key) 
+                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+            cursor.execute(query, (loc_code, loc_name, flag_emoji, volume, validity, ping, price, api_url, api_key))
             connection.commit()
             return cursor.lastrowid
         except sqlite3.OperationalError as e:

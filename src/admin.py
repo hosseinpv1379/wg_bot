@@ -51,7 +51,9 @@ async def add_plan_admin(update: Update, context: ContextTypes.DEFAULT_TYPE):
 4️⃣ حجم (گیگابایت)
 5️⃣ مدت اعتبار
 6️⃣ پینگ
-7️⃣ قیمت (تومان)"""
+7️⃣ قیمت (تومان)
+8️⃣ آدرس API (مثال: http://91.107.130.13:8443)
+9️⃣ کلید API (در صورت وجود)"""
 
     await update.callback_query.edit_message_text(
         msg,
@@ -62,8 +64,8 @@ async def add_plan_admin(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
     context.user_data['step'] = 'add admin plan'
 
-
-async def add_plan_admin_approve(update : Update , context : ContextTypes.DEFAULT_TYPE):
+async def add_plan_admin_approve(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    # خواندن داده‌ها از context.user_data
     location_code = context.user_data['data']['location_code']
     location_name = context.user_data['data']['location_name']
     flag_emoji = context.user_data['data']['flag_emoji']
@@ -71,8 +73,25 @@ async def add_plan_admin_approve(update : Update , context : ContextTypes.DEFAUL
     validity = context.user_data['data']['validity']
     ping = context.user_data['data']['ping']
     price = context.user_data['data']['price']
-    adedd = add_plan(loc_code=location_code , loc_name=location_name , flag_emoji=flag_emoji , volume=volume , validity=validity , ping=ping , price=price)
-    if adedd:
-        await update.callback_query.edit_message_text("با موفقیت اضافه شد")
+    
+    # خواندن فیلدهای جدید (با مقدار پیش‌فرض None)
+    api_url = context.user_data['data'].get('api_url', None)
+    api_key = context.user_data['data'].get('api_key', None)
+    
+    # فراخوانی تابع add_plan با پارامترهای جدید
+    added = add_plan(
+        loc_code=location_code,
+        loc_name=location_name,
+        flag_emoji=flag_emoji,
+        volume=volume,
+        validity=validity,
+        ping=ping,
+        price=price,
+        api_url=api_url,
+        api_key=api_key
+    )
+    
+    if added:
+        await update.callback_query.edit_message_text("✅ پلن با موفقیت اضافه شد")
     else:
-        await update.callback_query.edit_message_text("خطا در اضافه کردن پلن")
+        await update.callback_query.edit_message_text("❌ خطا در اضافه کردن پلن")
