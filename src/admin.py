@@ -5,13 +5,19 @@ from db.db_model import get_botdata , add_plan
 from datetime import datetime
 async def admin_page(update: Update, context: ContextTypes.DEFAULT_TYPE):
     kb = [
-        [InlineKeyboardButton('➕ اضافه کردن پلن', callback_data='admin_add-plan')],
-        [InlineKeyboardButton('📊 آمار ربات', callback_data='bot_statement')],
-        [InlineKeyboardButton('👥 مدیریت کاربران', callback_data='manage_users')],
-        [InlineKeyboardButton('💾 بکاپ دیتابیس', callback_data='backup_database')],
-        [InlineKeyboardButton('🔙 بازگشت', callback_data='back_to_main')]
+    [
+        InlineKeyboardButton('➕ اضافه کردن پلن', callback_data='admin_add-plan'),
+        InlineKeyboardButton('❌ حذف پلن', callback_data='admin_delete-plan')
+    ],
+    [
+        InlineKeyboardButton('📊 آمار ربات', callback_data='bot_statement'),
+        InlineKeyboardButton('👥 مدیریت کاربران', callback_data='manage_users')
+    ],
+    [
+        InlineKeyboardButton('💾 بکاپ دیتابیس', callback_data='backup_database'),
+        InlineKeyboardButton('🔙 بازگشت', callback_data='back_to_main')
     ]
-    
+]
     await update.callback_query.edit_message_text(
         "⚙️ *پنل مدیریت ادمین*\n\nلطفاً یکی از گزینه‌های زیر را انتخاب کنید:", 
         reply_markup=InlineKeyboardMarkup(kb),
