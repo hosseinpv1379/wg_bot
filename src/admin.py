@@ -179,7 +179,7 @@ async def plan_info_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     print(plan_id)
     # دریافت اطلاعات پلن از دیتابیس
     plan_info = get_service_location_by_id(plan_id)
-    
+    print(plan_info)
     if not plan_info:
         await query.answer("پلن مورد نظر یافت نشد!")
         return
