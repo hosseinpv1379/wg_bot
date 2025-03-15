@@ -17,7 +17,7 @@ import shutil
 import datetime
 CHANNEL_ID = '@test_wireguard'
 
-async def send_join_channel_button(message):
+async def send_join_channel_button(update : Update , context : ContextTypes.DEFAULT_TYPE):
     """
     تابعی برای ارسال دکمه اینلاین برای عضویت در کانال
     """
@@ -30,10 +30,13 @@ async def send_join_channel_button(message):
     reply_markup = InlineKeyboardMarkup(keyboard)
     
     # ارسال پیام با دکمه
-    await message.reply_text(
-        f"⚠️ برای استفاده از ربات، ابتدا باید در کانال ما عضو شوید!",
-        reply_markup=reply_markup
-    )
+    if update.message:
+        await update.message.reply_text(
+            f"⚠️ برای استفاده از ربات، ابتدا باید در کانال ما عضو شوید!",
+            reply_markup=reply_markup
+        )
+    if update.callback_query:
+        await update.callback_query.answer("شما هنوز داخل کانال عضو نشده اید" , show_alert=True)
 
 async def check_membership(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """
@@ -50,7 +53,7 @@ async def check_membership(update: Update, context: ContextTypes.DEFAULT_TYPE) -
             return True
         else:
             # استفاده از تابع کمکی برای نمایش دکمه عضویت
-            await send_join_channel_button(update.message)
+            await send_join_channel_button(update , context)
             return False
             
     except Exception as e:
