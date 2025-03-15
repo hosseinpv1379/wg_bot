@@ -302,7 +302,7 @@ async def msg_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             volume = lines[3].strip()
             validity = lines[4].strip()
             ping = lines[5].strip()
-            price = lines[6].strip()
+            price = int(lines[6].strip())
             
             # دریافت فیلدهای اختیاری جدید
             api_url = lines[7].strip() if len(lines) > 7 else ""
