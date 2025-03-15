@@ -194,6 +194,7 @@ def create_tables():
     validity TEXT NOT NULL,
     ping INTEGER NOT NULL,
     price INTEGER NOT NULL,
+    validate INTEGER NOT NULL,
     api_url TEXT,
     api_key TEXT,
     is_active INTEGER DEFAULT 1,

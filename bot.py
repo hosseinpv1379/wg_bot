@@ -1,5 +1,5 @@
 import re
-from telegram import Update , InlineKeyboardButton , InlineKeyboardMarkup
+from telegram import Update , InlineKeyboardButton , InlineKeyboardMarkup , ChatMember
 from telegram.ext import ApplicationBuilder , CommandHandler , ContextTypes , CallbackQueryHandler , MessageHandler , filters
 from db.db_model import add_user , get_user_by_id
 from src.admin import admin_page , bot_statement , add_plan_admin , add_plan_admin_approve , list_plans , plan_info_handler , delete_plan_handler
@@ -13,7 +13,45 @@ import datetime
 import os
 import shutil
 import datetime
+CHANNEL_ID = '@test_wireguard'
 
+async def send_join_channel_button(message):
+    """
+    تابعی برای ارسال دکمه اینلاین برای عضویت در کانال
+    """
+    # ایجاد دکمه اینلاین برای عضویت در کانال
+    channel_name = CHANNEL_ID.replace("@", "") if CHANNEL_ID.startswith("@") else CHANNEL_ID
+    keyboard = [
+        [InlineKeyboardButton("👉 عضویت در کانال 👈", url=f"https://t.me/{channel_name}")],
+        [InlineKeyboardButton("🔄 بررسی مجدد عضویت", callback_data="check_membership")]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    
+    # ارسال پیام با دکمه
+    await message.reply_text(
+        f"⚠️ برای استفاده از ربات، ابتدا باید در کانال ما عضو شوید!",
+        reply_markup=reply_markup
+    )
+
+async def check_membership(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """
+    تابعی که بررسی می‌کند آیا کاربر عضو کانال مشخص شده است یا خیر
+    """
+    user_id = update.effective_user.id
+    
+    try:
+        # بررسی وضعیت عضویت کاربر در کانال
+        chat_member = await context.bot.get_chat_member(chat_id=CHANNEL_ID, user_id=user_id)
+        
+        # چک کردن وضعیت عضویت
+        if chat_member.status in [ChatMember.MEMBER, ChatMember.ADMINISTRATOR, ChatMember.CREATOR]:
+            return True
+        else:
+            return False
+            
+    except Exception as e:
+        await update.message.reply_text(f"خطایی رخ داد: {str(e)}")
+        return False
 async def backup_database(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         # Get the current directory where the bot file is located
@@ -75,8 +113,9 @@ async def backup_database(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
 
 
-print(config.admin_list) 
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    
     # Handle both direct message and callback query
     if update.message:
         user = update.message.from_user
@@ -116,13 +155,18 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     kb.append([InlineKeyboardButton("📞 پشتیبانی", callback_data="support")])
     
     # Different response methods based on update type
+
     if update.message:
+        if not check_membership(update , context):
+            return send_join_channel_button(update.message)
         await update.message.reply_text(
             msg, 
             reply_markup=InlineKeyboardMarkup(kb),
             reply_to_message_id=update.message.id
         )
     else:
+        if not check_membership(update , context):
+             return send_join_channel_button(update.callback_query.message)
         await update.callback_query.edit_message_text(
             msg,
             reply_markup=InlineKeyboardMarkup(kb)

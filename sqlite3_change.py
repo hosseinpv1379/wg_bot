@@ -9,10 +9,9 @@ def add_columns_to_service_locations():
         cursor = conn.cursor()
         
         # اضافه کردن ستون URL
-        cursor.execute("ALTER TABLE service_locations ADD COLUMN api_url TEXT DEFAULT NULL")
+        cursor.execute("ALTER TABLE service_locations ADD COLUMN validate_days TEXT DEFAULT NULL")
         
         # اضافه کردن ستون API Key
-        cursor.execute("ALTER TABLE service_locations ADD COLUMN api_key TEXT DEFAULT NULL")
         
         # ذخیره تغییرات
         conn.commit()
