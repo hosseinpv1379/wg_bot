@@ -176,7 +176,7 @@ async def plan_info_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     # استخراج شناسه پلن از callback_data
     plan_id = int(data.split('_')[-1])
-    
+    print(plan_id)
     # دریافت اطلاعات پلن از دیتابیس
     plan_info = get_service_location_by_id(plan_id)
     
