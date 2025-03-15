@@ -194,7 +194,7 @@ def get_peers_info(peer_name, url):
         endpoint = f"{url}/api/get-peers"
         
         # تنظیم پارامترهای درخواست
-        params = {"peerName": peer_name}
+        params = {"peer_name": peer_name}
         
         # ارسال درخواست GET به سرور
         response = requests.get(endpoint, params=params,headers=headers, timeout=10)
