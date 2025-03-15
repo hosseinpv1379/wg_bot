@@ -70,7 +70,9 @@ def get_service_location_by_id(location_id):
                 "volume": row['volume'],
                 "validity": row['validity'],
                 "ping": row['ping'],
-                "price": row['price']
+                "price": row['price'],
+                "api_url" : row['api_url'],
+                "api_key" : row['api_key']
         }
                 
         return location_entry
