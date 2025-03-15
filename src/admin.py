@@ -108,7 +108,7 @@ async def list_plans(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         # دریافت لیست پلن‌ها از دیتابیس
         plans = get_service_locations_sorted()
-        
+        print(plans)
         if not plans:
             await update.callback_query.edit_message_text(
                 "📭 هیچ پلنی یافت نشد!",
