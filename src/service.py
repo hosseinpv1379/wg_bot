@@ -328,7 +328,45 @@ async def subscription_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
         print(f"خطا در نمایش لیست اشتراک‌ها: {e}")
 
 
-async def config_info(update : Update , context : ContextTypes.DEFAULT_TYPE):
-    name = update.callback_query.data.split('@')[1]
-    data = get_peers_info(name , 'http://91.107.130.13:8443')
-    print(data)
+async def config_info(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    try:
+        name = update.callback_query.data.split('@')[1]
+        data = get_peers_info(name, 'http://91.107.130.13:8443')
+        
+        if not data or 'peers' not in data or len(data['peers']) == 0:
+            await update.callback_query.answer("❌ اطلاعات اتصال یافت نشد.", show_alert=True)
+            return
+            
+        peer = data['peers'][0]  # دسترسی به اولین عنصر لیست peers
+        
+        # تبدیل باقیمانده به گیگابایت برای خوانایی بهتر
+        remaining_gb = round(peer['remaining'] / (1024**3), 2)
+        
+        # تبدیل زمان باقیمانده از دقیقه به روز
+        remaining_days = round(peer['remaining_time'] / 1440, 1)
+        
+        msg = f"""
+🌐 اطلاعات اتصال VPN شما 🌐
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📌 نام اتصال: {name}
+📊 حجم کل: {peer['limit']}
+📉 استفاده شده: {round(peer['used'] / (1024**2), 2)} MB
+📈 باقیمانده: {remaining_gb} GB
+⏳ زمان باقیمانده: {remaining_days} روز
+🟢 وضعیت: فعال
+
+برای دریافت فایل پیکربندی، از دکمه زیر استفاده کنید.
+"""
+        
+        # ایجاد دکمه برای دریافت فایل کانفیگ
+        keyboard = [[InlineKeyboardButton("📥 دریافت فایل پیکربندی", callback_data=f"ConfigFile@{name}")]]
+        
+        await update.callback_query.edit_message_text(
+            text=msg,
+            reply_markup=InlineKeyboardMarkup(keyboard)
+        )
+        
+    except Exception as e:
+        print(f"خطا در نمایش اطلاعات اتصال: {e}")
+        await update.callback_query.answer("❌ خطایی رخ داد. لطفاً دوباره تلاش کنید.", show_alert=True)
