@@ -370,7 +370,7 @@ async def msg_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 "کلید API (اختیاری)\n"
                 "```"
             )
-            
+            print(e)
             await update.message.reply_text(
                 error_message,
                 parse_mode="Markdown",
