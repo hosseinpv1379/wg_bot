@@ -25,7 +25,7 @@ async def send_join_channel_button(message):
     channel_name = CHANNEL_ID.replace("@", "") if CHANNEL_ID.startswith("@") else CHANNEL_ID
     keyboard = [
         [InlineKeyboardButton("👉 عضویت در کانال 👈", url=f"https://t.me/{channel_name}")],
-        [InlineKeyboardButton("🔄 بررسی مجدد عضویت", callback_data="check_membership")]
+        [InlineKeyboardButton("🔄 بررسی مجدد عضویت", callback_data="back_to_main")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     
