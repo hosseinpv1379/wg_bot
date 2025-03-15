@@ -1,7 +1,7 @@
 import re
 from telegram import Update , InlineKeyboardButton , InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder , CommandHandler , ContextTypes , CallbackQueryHandler , MessageHandler , filters
-from db.db_model import get_botdata , add_plan , get_service_locations_sorted
+from db.db_model import get_botdata , add_plan , get_service_locations_sorted , delete_plan_from_db , get_service_location_by_id
 from datetime import datetime
 async def admin_page(update: Update, context: ContextTypes.DEFAULT_TYPE):
     kb = [
@@ -164,5 +164,87 @@ async def list_plans(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "❌ خطایی در دریافت لیست پلن‌ها رخ داد.",
             reply_markup=InlineKeyboardMarkup([
                 [InlineKeyboardButton("🔙 بازگشت به پنل ادمین", callback_data="admin_panel")]
+            ])
+        )
+
+
+
+async def plan_info_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """هندلر برای دکمه‌های مربوط به هر پلن"""
+    query = update.callback_query
+    data = query.data
+    
+    # استخراج شناسه پلن از callback_data
+    plan_id = int(data.split('_')[-1])
+    
+    # دریافت اطلاعات پلن از دیتابیس
+    plan_info = get_service_location_by_id(plan_id)
+    
+    if not plan_info:
+        await query.answer("پلن مورد نظر یافت نشد!")
+        return
+    
+    # نمایش اطلاعات پلن و گزینه حذف
+    message_text = f"""
+📋 *اطلاعات پلن*
+
+🆔 *کد:* `{plan_info['loc']}`
+📍 *نام:* {plan_info['name']}
+🚩 *پرچم:* {plan_info['flag']}
+📊 *حجم:* {plan_info['volume']} گیگابایت
+⏱ *مدت اعتبار:* {plan_info['validity']}
+📡 *پینگ:* {plan_info['ping']} میلی‌ثانیه
+💰 *قیمت:* {plan_info['price']:,} تومان
+
+آیا می‌خواهید این پلن را حذف کنید؟
+"""
+    
+    # دکمه‌های تأیید یا لغو حذف
+    keyboard = [
+        [
+            InlineKeyboardButton("✅ بله، حذف شود", callback_data=f"delete_plan_{plan_id}"),
+            InlineKeyboardButton("❌ خیر، لغو شود", callback_data="admin_list-plan")
+        ]
+    ]
+    
+    await query.edit_message_text(
+        message_text,
+        reply_markup=InlineKeyboardMarkup(keyboard),
+        parse_mode="Markdown"
+    )
+
+
+async def delete_plan_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """حذف پلن از دیتابیس"""
+    query = update.callback_query
+    data = query.data
+    
+    # استخراج شناسه پلن از callback_data
+    plan_id = int(data.split('_')[-1])
+    
+    try:
+        # فانکشن حذف پلن از دیتابیس
+        result = delete_plan_from_db(plan_id)
+        
+        if result:
+            await query.answer("✅ پلن با موفقیت حذف شد.")
+            # بازگشت به لیست پلن‌ها
+            await list_plans(update, context)
+        else:
+            await query.answer("❌ حذف پلن با خطا مواجه شد.")
+            await query.edit_message_text(
+                "متأسفانه در حذف پلن خطایی رخ داد. لطفاً دوباره تلاش کنید.",
+                reply_markup=InlineKeyboardMarkup([
+                    [InlineKeyboardButton("🔙 بازگشت به لیست پلن‌ها", callback_data="admin_list-plan")]
+                ])
+            )
+    
+    except Exception as e:
+        print(f"خطا در حذف پلن: {e}")
+        await query.answer("❌ خطایی رخ داد.")
+        await query.edit_message_text(
+            f"خطا در حذف پلن: {str(e)}",
+            reply_markup=InlineKeyboardMarkup([
+                [InlineKeyboardButton("🔙 بازگشت به لیست پلن‌ها", callback_data="admin_list-plan")]
             ])
         )

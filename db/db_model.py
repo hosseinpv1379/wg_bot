@@ -543,6 +543,31 @@ def main():
     create_tables()
 
 
+def delete_plan_from_db(plan_id):
+    """حذف پلن از جدول service_locations"""
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
+        
+        # حذف پلن با شناسه مشخص شده
+        query = "DELETE FROM service_locations WHERE id = ?"
+        cursor.execute(query, (plan_id,))
+        
+        # ذخیره تغییرات
+        conn.commit()
+        
+        # بررسی تعداد رکوردهای تحت تأثیر
+        success = cursor.rowcount > 0
+        
+        # بستن اتصال
+        cursor.close()
+        conn.close()
+        
+        return success
+    
+    except Exception as e:
+        print(f"خطا در حذف پلن از دیتابیس: {e}")
+        return False
 
 if __name__ == "__main__":
     main()
