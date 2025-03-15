@@ -287,7 +287,7 @@ async def subscription_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # دریافت اطلاعات کاربر و اشتراک‌ها
         user_id = str(update.effective_user.id)
         subscriptions = get_user_subscriptions(user_id)
-        
+        name_config = update.callback_query.data.split('@')[1]
         if subscriptions is None:
             await update.callback_query.edit_message_text("خطا در دریافت اطلاعات اشتراک‌ها.")
             return
@@ -316,9 +316,9 @@ async def subscription_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 name = f"ping-killer-{user_id}-{sub['id']}"
                 keyboard.append([
                     InlineKeyboardButton(f"دریافت کانفیگ {sub['plan_name']}", 
-                                        callback_data=f"configinfo@{name}")
+                                        callback_data=f"configinfo@{name_config}")
                 ])
-        keyboard.append([InlineKeyboardButton('🔙 بازگشت' , callback_data='user_subscription')])
+        keyboard.append([InlineKeyboardButton('🔙 بازگشت' , callback_data='back_to_main')])
         # ارسال پیام به کاربر
         await update.callback_query.message.reply_text(
             message_text,
