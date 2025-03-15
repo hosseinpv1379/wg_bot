@@ -157,16 +157,16 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Different response methods based on update type
 
     if update.message:
-        if not check_membership(update , context):
-            return send_join_channel_button(update.message)
+        if not await check_membership(update , context):
+            return await send_join_channel_button(update.message)
         await update.message.reply_text(
             msg, 
             reply_markup=InlineKeyboardMarkup(kb),
             reply_to_message_id=update.message.id
         )
     else:
-        if not check_membership(update , context):
-             return send_join_channel_button(update.callback_query.message)
+        if not await check_membership(update , context):
+             return await send_join_channel_button(update.callback_query.message)
         await update.callback_query.edit_message_text(
             msg,
             reply_markup=InlineKeyboardMarkup(kb)
